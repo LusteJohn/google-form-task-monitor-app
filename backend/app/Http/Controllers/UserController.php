@@ -11,7 +11,7 @@ class UserController extends Controller
     public function showLoginForm()
     {
         if (session('user_id')) {
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         }
 
         return view('auth.login');
@@ -20,7 +20,7 @@ class UserController extends Controller
     public function showRegisterForm()
     {
         if (session('user_id')) {
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         }
 
         return view('auth.register');
@@ -70,7 +70,7 @@ class UserController extends Controller
             'email' => $user->email,
         ]);
 
-        return redirect()->route('home')
+        return redirect()->route('dashboard')
             ->with('success', 'Login successful.');
     }
 
