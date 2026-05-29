@@ -80,6 +80,61 @@ class UserController extends Controller
             ->withErrors(['email' => 'Google sign-in is not configured yet.']);
     }
 
+    public function showSettingsForm()
+    {
+        if (! session('user_id')) {
+            return redirect()->route('login');
+        }
+
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        return view('pages.setting', [
+            'user' => $user,
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        if (! session('user_id')) {
+            return redirect()->route('login');
+        }
+
+        $user = User::find(session('user_id'));
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
+
+        $validated = $request->validate([
+            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'current_password' => ['required', 'string'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (! Hash::check($validated['current_password'], $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->email = $validated['email'];
+
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        session([
+            'email' => $user->email,
+        ]);
+
+        return redirect()->route('settings')
+            ->with('success', 'Settings updated successfully.');
+    }
+
     public function logout(Request $request)
     {
         $request->session()->flush();

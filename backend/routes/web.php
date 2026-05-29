@@ -12,4 +12,7 @@ Route::get('/register', [UserController::class, 'showRegisterForm'])->name('regi
 Route::post('/register', [UserController::class, 'register'])->name('register.submit');
 Route::post('/logout', [UserController::class, 'logout'])->name('logout');
 
+Route::get('/settings', [UserController::class, 'showSettingsForm'])->name('settings');
+Route::post('/settings', [UserController::class, 'updateSettings'])->name('settings.update');
+
 Route::get('/auth/google', [UserController::class, 'googleRedirect'])->name('auth.google.redirect');

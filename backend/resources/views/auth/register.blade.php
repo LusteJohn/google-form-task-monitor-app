@@ -32,14 +32,24 @@
 
                         <div>
                             <label for="password" class="block text-sm font-medium text-slate-200">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                required
-                                class="mt-2 w-full rounded-lg bg-slate-950/60 border border-slate-800 px-3 py-2 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                                placeholder="Create a password"
-                            />
+                            <div class="relative mt-2">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    required
+                                    class="w-full rounded-lg bg-slate-950/60 border border-slate-800 px-3 py-2 pr-12 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                                    placeholder="Create a password"
+                                />
+                                <button
+                                    type="button"
+                                    class="absolute inset-y-0 right-2 my-1 px-2 text-xs text-slate-300 hover:text-slate-100"
+                                    data-toggle-password
+                                    data-target="password"
+                                >
+                                    Show
+                                </button>
+                            </div>
                             @error('password')
                                 <p class="mt-2 text-sm text-rose-300">{{ $message }}</p>
                             @enderror
@@ -63,4 +73,18 @@
             </div>
         </div>
     </body>
+    <script>
+        document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (!input) {
+                    return;
+                }
+                const nextType = input.type === 'password' ? 'text' : 'password';
+                input.type = nextType;
+                button.textContent = nextType === 'password' ? 'Show' : 'Hide';
+            });
+        });
+    </script>
 </html>
