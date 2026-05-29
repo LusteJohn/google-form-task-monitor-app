@@ -32,6 +32,13 @@
             <span class="material-symbols-outlined">add_task</span>
             <span class="font-body-md text-body-md">Submit Task</span>
         </a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out">
+                <span class="material-symbols-outlined">exit_to_app</span>
+                <span class="font-body-md text-body-md">Logout</span>
+            </button>
+        </form>
     </nav>
     <div class="px-4 mt-auto">
         <p class="font-label-sm text-label-sm text-outline">v1.0.4</p>
