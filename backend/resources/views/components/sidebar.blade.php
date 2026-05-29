@@ -16,7 +16,7 @@
         </div>
     </div>
     <nav class="flex flex-col gap-1 flex-1">
-        <a class="flex items-center gap-3 px-4 py-3 bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary font-bold rounded-full transition-all duration-200 ease-in-out" href="#">
+        <a class="flex items-center gap-3 px-4 py-3 bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary font-bold rounded-full transition-all duration-200 ease-in-out" href="{{ route('dashboard') }}">
             <span class="material-symbols-outlined">dashboard</span>
             <span class="font-body-md text-body-md">Dashboard</span>
         </a>
@@ -31,6 +31,10 @@
         <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
             <span class="material-symbols-outlined">add_task</span>
             <span class="font-body-md text-body-md">Submit Task</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="{{ route('settings') }}">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-body-md text-body-md">Settings</span>
         </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
