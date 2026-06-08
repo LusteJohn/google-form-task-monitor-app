@@ -1,4 +1,4 @@
-@extends('components.layout', ['title' => 'EduTrack Pro - Dashboard', 'pageTitle' => 'Overview Dashboard'])
+@extends('components.layout', ['title' => 'EduTrack Pro - Dashboard', 'pageTitle' => 'Overview Dashboard', 'userEmail' => $userEmail ?? null, 'userName' => $userName ?? null])
 
 @section('content')
 	<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-8">

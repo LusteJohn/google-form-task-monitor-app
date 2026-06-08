@@ -11,8 +11,8 @@
             />
         </div>
         <div>
-            <p class="font-label-md text-label-md font-bold text-on-surface">Academic Admin</p>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">Department of Education</p>
+            <p class="font-label-md text-label-md font-bold text-on-surface">{{ session('name') }}</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ session('email') }}</p>
         </div>
     </div>
     <nav class="flex flex-col gap-1 flex-1">
