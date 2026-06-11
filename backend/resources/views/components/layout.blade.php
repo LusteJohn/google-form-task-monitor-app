@@ -152,7 +152,7 @@
 		</div>
 
 		<nav class="fixed bottom-0 left-0 w-full z-50 flex lg:hidden justify-around items-center px-2 py-3 bg-surface dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-lg rounded-t-xl">
-			<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform" href="#">
+			<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-transform" href="{{ route('dashboard') }}">
 				<span class="material-symbols-outlined">home</span>
 				<span class="font-label-sm text-label-sm">Home</span>
 			</a>
@@ -160,13 +160,13 @@
 				<span class="material-symbols-outlined">person_search</span>
 				<span class="font-label-sm text-label-sm">Students</span>
 			</a>
+			<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform" href="{{ route('task.list') }}">
+				<span class="material-symbols-outlined">add_task</span>
+				<span class="font-label-sm text-label-sm">Submit</span>
+			</a>
 			<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-transform" href="#">
 				<span class="material-symbols-outlined">analytics</span>
 				<span class="font-label-sm text-label-sm">Details</span>
-			</a>
-			<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant scale-95 active:scale-90 transition-transform" href="#">
-				<span class="material-symbols-outlined">edit_note</span>
-				<span class="font-label-sm text-label-sm">Log</span>
 			</a>
 		</nav>
 		<button class="fixed bottom-24 right-6 lg:bottom-10 lg:right-10 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95 z-40">
