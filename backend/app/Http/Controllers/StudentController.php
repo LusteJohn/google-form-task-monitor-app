@@ -18,9 +18,7 @@ class StudentController extends Controller
             return redirect()->route('login');
         }
 
-        $user = User::find(session('user_id'));
-
-        $linkedSheet = GoogleSheet::where('user_id', $user->id)->first();
+        $linkedSheet = GoogleSheet::where('user_id', session('user_id'))->first();
         $syncError = null;
 
         if ($linkedSheet && (!$linkedSheet->last_synced_at || $linkedSheet->last_synced_at->lessThan(now()->subMinutes(5)))) {
@@ -45,7 +43,6 @@ class StudentController extends Controller
                         ]);
                     } else {
                         Student::create([
-                            'user_id' => $user->id,
                             'name' => $studentData['name'],
                             'email' => $studentData['email'],
                             'phone_number' => $studentData['phone_number'],
@@ -60,7 +57,7 @@ class StudentController extends Controller
             }
         }
 
-        $students = Student::where('user_id', $user->id)->get();
+        $students = Student::all();
 
         return view('pages.task-list', [
             'linkedSheet' => $linkedSheet,
