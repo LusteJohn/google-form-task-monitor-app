@@ -10,10 +10,6 @@ Route::view('/dashboard', 'pages.dashboard', [
 ])->name('dashboard');
 
 Route::get('/login', [UserController::class, 'showLoginForm'])->name('login');
-
-Route::fallback(function () {
-    return redirect()->route('login');
-});
 Route::post('/login', [UserController::class, 'login'])->name('login.submit');
 Route::get('/register', [UserController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [UserController::class, 'register'])->name('register.submit');
@@ -23,3 +19,11 @@ Route::get('/settings', [UserController::class, 'showSettingsForm'])->name('sett
 Route::post('/settings', [UserController::class, 'updateSettings'])->name('settings.update');
 
 Route::get('/auth/google', [UserController::class, 'googleRedirect'])->name('auth.google.redirect');
+
+Route::get('/task-list', [App\Http\Controllers\StudentController::class, 'showTaskList'])->name('task.list');
+Route::post('/task-list/link', [App\Http\Controllers\StudentController::class, 'linkForm'])->name('task.list.link');
+Route::post('/task-list/sync', [App\Http\Controllers\StudentController::class, 'syncStudents'])->name('task.list.sync');
+
+Route::fallback(function () {
+    return redirect()->route('login');
+});

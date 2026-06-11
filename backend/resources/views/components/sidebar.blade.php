@@ -28,7 +28,7 @@
             <span class="material-symbols-outlined">star</span>
             <span class="font-body-md text-body-md">Milestones</span>
         </a>
-        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="#">
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all duration-200 ease-in-out" href="{{ route('task.list') }}">
             <span class="material-symbols-outlined">add_task</span>
             <span class="font-body-md text-body-md">Submit Task</span>
         </a>
