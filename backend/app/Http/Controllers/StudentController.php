@@ -256,7 +256,9 @@ class StudentController extends Controller
             $lines = str_getcsv($response->body(), "\n");
             $headers = str_getcsv(array_shift($lines));
 
-            return array_map('trim', $headers);
+            return array_map(function ($h) {
+                return trim(str_replace(["\ufeff", "\r"], '', $h));
+            }, $headers);
         }
 
         if ($response->status() === 401 || $response->status() === 403) {
@@ -290,7 +292,10 @@ class StudentController extends Controller
     private function parseCsv(string $csvBody, array $columnMap): array
     {
         $lines = str_getcsv($csvBody, "\n");
-        $headers = str_getcsv(array_shift($lines));
+        $rawHeaders = str_getcsv(array_shift($lines));
+        $headers = array_map(function ($h) {
+            return trim(str_replace(["\ufeff", "\r"], '', $h));
+        }, $rawHeaders);
 
         $columnIndexes = [];
 
@@ -299,11 +304,53 @@ class StudentController extends Controller
                 continue;
             }
 
-            $index = array_search(trim($columnName), $headers);
+            $index = false;
+
+            foreach ($headers as $i => $header) {
+                if (strcasecmp(trim($header), trim($columnName)) === 0) {
+                    $index = $i;
+                    break;
+                }
+            }
+
+            if ($index === false) {
+                $headerLower = array_map('strtolower', $headers);
+                $searchLower = strtolower(trim($columnName));
+
+                $index = array_search($searchLower, $headerLower, true);
+
+                if ($index === false) {
+                    $keywords = [
+                        'name' => ['name', 'full name', 'student name', 'fullname'],
+                        'email' => ['email', 'e-mail', 'mail', 'email address'],
+                        'phone' => ['phone', 'mobile', 'contact', 'contact number', 'phone number'],
+                        'address' => ['address', 'location'],
+                    ];
+
+                    if (isset($keywords[$field])) {
+                        foreach ($keywords[$field] as $keyword) {
+                            foreach ($headerLower as $i => $hl) {
+                                if (str_contains($hl, $keyword)) {
+                                    $index = $i;
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             if ($index !== false) {
                 $columnIndexes[$field] = $index;
             }
+        }
+
+        if (!isset($columnIndexes['name'])) {
+            throw new \Exception('Could not find "Name" column in the sheet. Found columns: ' . implode(', ', $headers));
+        }
+
+        if (!isset($columnIndexes['email'])) {
+            throw new \Exception('Could not find "Email" column in the sheet. Found columns: ' . implode(', ', $headers));
         }
 
         $students = [];
@@ -323,6 +370,7 @@ class StudentController extends Controller
             $name = $row[$columnIndexes['name']] ?? trim($email, ' @');
 
             $students[] = [
+                'user_id' => null,
                 'name' => trim($name),
                 'email' => trim(strtolower($email)),
                 'phone_number' => isset($columnIndexes['phone']) ? trim($row[$columnIndexes['phone']] ?? '') : null,
