@@ -3,14 +3,15 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Http\Controllers\StudentController;
 use App\Models\GoogleSheet;
 use App\Models\Student;
-use Illuminate\Support\Facades\Http;
+use App\Models\Task;
 
 class SyncGoogleSheet extends Command
 {
     protected $signature = 'sheets:sync {--force : Force sync even if recently synced}';
-    protected $description = 'Sync students from all linked Google Sheets';
+    protected $description = 'Sync students and tasks from all linked Google Sheets';
 
     public function handle(): void
     {
@@ -31,17 +32,18 @@ class SyncGoogleSheet extends Command
             $this->info("Syncing sheet: {$sheet->spreadsheet_id}");
 
             try {
+                $controller = new StudentController();
                 $spreadsheetUrl = "https://docs.google.com/spreadsheets/d/{$sheet->spreadsheet_id}";
 
-                $students = $this->fetchStudentsFromSheet($spreadsheetUrl, [
+                $students = $controller->fetchStudentsFromSheet($spreadsheetUrl, [
                     'name' => $sheet->name_column,
                     'email' => $sheet->email_column,
                     'phone' => $sheet->phone_column,
                     'address' => $sheet->address_column,
                 ]);
 
-                $imported = 0;
-                $updated = 0;
+                $studentImported = 0;
+                $studentUpdated = 0;
 
                 foreach ($students as $studentData) {
                     $existing = Student::where('email', $studentData['email'])->first();
@@ -52,89 +54,63 @@ class SyncGoogleSheet extends Command
                             'phone_number' => $studentData['phone_number'],
                             'address' => $studentData['address'],
                         ]);
-                        $updated++;
+                        $studentUpdated++;
                     } else {
                         Student::create($studentData);
-                        $imported++;
+                        $studentImported++;
+                    }
+                }
+
+                $taskImported = 0;
+                $taskUpdated = 0;
+
+                if ($sheet->file_url_column) {
+                    $tasks = $controller->fetchTasksFromSheet($spreadsheetUrl, [
+                        'file_url' => $sheet->file_url_column,
+                        'status' => $sheet->status_column,
+                        'due_date' => $sheet->due_date_column,
+                    ]);
+
+                    foreach ($tasks as $index => $taskData) {
+                        $student = Student::where('email', $students[$index]['email'] ?? null)->first();
+
+                        if (!$student) {
+                            continue;
+                        }
+
+                        $existing = Task::where('student_id', $student->student_id)
+                            ->where('task_name', $sheet->form_name)
+                            ->first();
+
+                        if ($existing) {
+                            $existing->update([
+                                'file_url' => $taskData['file_url'],
+                                'status' => $taskData['status'] ?? 'pending',
+                                'due_date' => $taskData['due_date'] ?? now()->toDateString(),
+                            ]);
+                            $taskUpdated++;
+                        } else {
+                            Task::create([
+                                'student_id' => $student->student_id,
+                                'task_name' => $sheet->form_name,
+                                'file_url' => $taskData['file_url'],
+                                'status' => $taskData['status'] ?? 'pending',
+                                'due_date' => $taskData['due_date'] ?? now()->toDateString(),
+                            ]);
+                            $taskImported++;
+                        }
                     }
                 }
 
                 $sheet->update(['last_synced_at' => now()]);
 
-                $this->info("  Added: {$imported}, Updated: {$updated}");
+                $this->info("  Students - Added: {$studentImported}, Updated: {$studentUpdated}");
+                $this->info("  Tasks - Added: {$taskImported}, Updated: {$taskUpdated}");
             } catch (\Exception $e) {
                 $this->error("  Failed: " . $e->getMessage());
             }
         }
 
         $this->info('Sync complete.');
-    }
-
-    private function fetchStudentsFromSheet(string $spreadsheetUrl, array $columnMap): array
-    {
-        $exportUrl = $spreadsheetUrl . '/export?format=csv';
-
-        $response = Http::timeout(30)
-            ->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            ])
-            ->get($exportUrl);
-
-        if ($response->successful()) {
-            return $this->parseCsv($response->body(), $columnMap);
-        }
-
-        if ($response->status() === 401 || $response->status() === 403) {
-            throw new \Exception('Google Sheet is not publicly accessible. Please set sharing to "Anyone with the link can view".');
-        }
-
-        throw new \Exception('Failed to fetch Google Sheet (HTTP ' . $response->status() . ').');
-    }
-
-    private function parseCsv(string $csvBody, array $columnMap): array
-    {
-        $lines = str_getcsv($csvBody, "\n");
-        $headers = str_getcsv(array_shift($lines));
-
-        $columnIndexes = [];
-
-        foreach ($columnMap as $field => $columnName) {
-            if (!$columnName) {
-                continue;
-            }
-
-            $index = array_search(trim($columnName), $headers);
-
-            if ($index !== false) {
-                $columnIndexes[$field] = $index;
-            }
-        }
-
-        $students = [];
-
-        foreach ($lines as $line) {
-            if (empty(trim($line))) {
-                continue;
-            }
-
-            $row = str_getcsv($line);
-            $email = $row[$columnIndexes['email']] ?? null;
-
-            if (empty($email) || !filter_var(trim($email), FILTER_VALIDATE_EMAIL)) {
-                continue;
-            }
-
-            $name = $row[$columnIndexes['name']] ?? trim($email, ' @');
-
-            $students[] = [
-                'user_id' => null,
-                'name' => trim($name),
-                'email' => trim(strtolower($email)),
-                'phone_number' => isset($columnIndexes['phone']) ? trim($row[$columnIndexes['phone']] ?? '') : null,
-                'address' => isset($columnIndexes['address']) ? trim($row[$columnIndexes['address']] ?? '') : null,
-            ];
-        }
-
-        return $students;
     }
 }

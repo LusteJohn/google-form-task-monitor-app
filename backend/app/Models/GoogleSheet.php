@@ -11,10 +11,14 @@ class GoogleSheet extends Model
         'user_id',
         'spreadsheet_id',
         'form_url',
+        'form_name',
         'name_column',
         'email_column',
         'phone_column',
         'address_column',
+        'file_url_column',
+        'status_column',
+        'due_date_column',
         'last_synced_at',
     ];
 

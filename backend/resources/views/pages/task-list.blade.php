@@ -55,18 +55,31 @@
                     </span>
                 </div>
 
-                <form method="POST" action="{{ route('task.list.sync') }}" class="flex gap-3">
-                    @csrf
-                    <button
-                        type="submit"
-                        class="rounded-lg bg-primary text-on-primary font-semibold py-2.5 px-4 hover:bg-primary/90 transition"
-                    >
-                        Sync Students
-                    </button>
+                <div class="flex gap-3 flex-wrap">
+                    <form method="POST" action="{{ route('task.list.sync') }}" class="inline-flex">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="rounded-lg bg-primary text-on-primary font-semibold py-2.5 px-4 hover:bg-primary/90 transition"
+                        >
+                            Sync Students
+                        </button>
+                    </form>
+                    @if($linkedSheet->file_url_column)
+                        <form method="POST" action="{{ route('tasks.sync') }}" class="inline-flex">
+                            @csrf
+                            <button
+                                type="submit"
+                                class="rounded-lg bg-secondary text-on-secondary font-semibold py-2.5 px-4 hover:bg-secondary/90 transition"
+                            >
+                                Sync Tasks
+                            </button>
+                        </form>
+                    @endif
                     <span class="self-center font-body-sm text-body-sm text-on-surface-variant">
                         {{ $students->count() }} student(s) imported
                     </span>
-                </form>
+                </div>
             </div>
         @endif
 
@@ -134,6 +147,48 @@
                                     <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">{{ $student->email }}</td>
                                     <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">{{ $student->phone_number ?? '-' }}</td>
                                     <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">{{ $student->address ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if(isset($tasks) && $tasks->count() > 0)
+            <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+                <div class="p-6 border-b border-outline-variant">
+                    <h2 class="font-headline-sm text-headline-sm text-on-surface">Submitted Tasks</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-surface-container-low/30">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-label-sm text-label-sm uppercase text-outline tracking-widest">Task Name</th>
+                                <th class="px-6 py-3 text-left font-label-sm text-label-sm uppercase text-outline tracking-widest">Student</th>
+                                <th class="px-6 py-3 text-left font-label-sm text-label-sm uppercase text-outline tracking-widest">File URL</th>
+                                <th class="px-6 py-3 text-left font-label-sm text-label-sm uppercase text-outline tracking-widest">Status</th>
+                                <th class="px-6 py-3 text-left font-label-sm text-label-sm uppercase text-outline tracking-widest">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline-variant">
+                            @foreach($tasks as $task)
+                                <tr class="hover:bg-surface-container-low transition-colors">
+                                    <td class="px-6 py-4 font-body-md text-body-md text-on-surface">{{ $task->task_name }}</td>
+                                    <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">{{ $task->student->name ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">
+                                        @if($task->file_url)
+                                            <a href="{{ $task->file_url }}" target="_blank" class="text-primary hover:underline">View File</a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $task->status === 'completed' ? 'bg-secondary-container text-on-secondary-container' : 'bg-tertiary-fixed text-on-tertiary-fixed-variant' }}">
+                                            {{ ucfirst($task->status ?? 'pending') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 font-body-md text-body-md text-on-surface-variant">{{ $task->due_date }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

@@ -21,8 +21,10 @@ Route::post('/settings', [UserController::class, 'updateSettings'])->name('setti
 Route::get('/auth/google', [UserController::class, 'googleRedirect'])->name('auth.google.redirect');
 
 Route::get('/task-list', [App\Http\Controllers\StudentController::class, 'showTaskList'])->name('task.list');
+Route::get('/tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
 Route::post('/task-list/link', [App\Http\Controllers\StudentController::class, 'linkForm'])->name('task.list.link');
 Route::post('/task-list/sync', [App\Http\Controllers\StudentController::class, 'syncStudents'])->name('task.list.sync');
+Route::post('/tasks/sync', [App\Http\Controllers\TaskController::class, 'syncTasks'])->name('tasks.sync');
 
 Route::fallback(function () {
     return redirect()->route('login');
