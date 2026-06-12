@@ -2,7 +2,19 @@
 
 @section('content')
     <div class="max-w-2xl mx-auto space-y-6">
-        @if(session('success'))
+        <div class="flex items-center justify-between">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface">Google Sheet Management</h2>
+            <button
+                type="button"
+                id="toggleSettings"
+                class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors"
+            >
+                <span class="material-symbols-outlined text-on-surface-variant">settings</span>
+            </button>
+        </div>
+
+        <div id="sheetSettings" class="hidden space-y-6">
+            @if(session('success'))
             <div class="rounded-md bg-emerald-500/10 text-emerald-200 px-4 py-3 text-sm ring-1 ring-emerald-500/20">
                 {{ session('success') }}
             </div>
@@ -92,6 +104,13 @@
                 </button>
             </form>
         </div>
+        </div>
+
+        <script>
+            document.getElementById('toggleSettings').addEventListener('click', function () {
+                document.getElementById('sheetSettings').classList.toggle('hidden');
+            });
+        </script>
 
         @if($students->count() > 0)
             <div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
